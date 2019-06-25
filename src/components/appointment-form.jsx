@@ -3,7 +3,7 @@ import Datetime from 'react-datetime';
 import PropTypes from 'prop-types';
 import update from 'immutability-helper';
 import moment from 'moment';
-import jQuery from 'jquery';
+import $ from 'jquery';
 import { Messages } from 'primereact/messages';
 
 import { Label } from './label';
@@ -33,24 +33,25 @@ export default class AppointmentForm extends React.Component {
 
   componentDidMount() {
     if(this.props.match) {
-      jQuery.ajax({
-              type: 'GET',
-              url: `${this.base_url}/${this.props.match.params.id}`,
-              dataType: 'JSON' 
-            })
-            .done( data => {
-              this.setState({
-                title: {
-                  value: data.title, 
-                  valid: true},
-                appt_time: {
-                  value: moment(data.appt_time),
-                  valid: true},
-                editing: this.props.match.path === '/appointments/:id/edit'
-              });
+      $.ajax({
+        type: 'GET',
+        url: `${this.base_url}/${this.props.match.params.id}`,
+        dataType: 'JSON',
+        headers: JSON.parse(sessionStorage.getItem('user')) 
+      })
+      .done( data => {
+        this.setState({
+          title: {
+            value: data.title, 
+            valid: true},
+          appt_time: {
+            value: moment(data.appt_time),
+            valid: true},
+          editing: this.props.match.path === '/appointments/:id/edit'
+        });
 
-              this.validateForm();
-            });	  
+        this.validateForm();
+      });	  
     }
   }
 
@@ -110,36 +111,37 @@ export default class AppointmentForm extends React.Component {
       appt_time: this.state.appt_time.value
     };
     
-    jQuery.ajax({
-            type: 'PUT',
-            url: `${this.base_url}/${this.props.match.params.id}`, 
-            data: { appointment: appointment },
-            dataType: 'JSON'
-          })
-          .done( data => {
-            this.setState({ 
-              title: { value: '', valid: false },
-              appt_time: { value: '', valid: false },
-              formValid: false 
+    $.ajax({
+      type: 'PUT',
+      url: `${this.base_url}/${this.props.match.params.id}`, 
+      data: { appointment: appointment },
+      dataType: 'JSON',
+      headers: JSON.parse(sessionStorage.getItem('user'))
+    })
+    .done( data => {
+      this.setState({ 
+        title: { value: '', valid: false },
+        appt_time: { value: '', valid: false },
+        formValid: false 
+      });
+      
+      this.props.history.push('/', { severity: 'success', message: 'Appointment updated succesfully'});
+    })
+    .fail( response => { 
+      
+      const messages = [];
+      
+      const formErrors = response.responseJSON;
+      console.log("formErrors: " + formErrors);
+      Object.keys(formErrors)
+            .each((formErrorField) => {
+              formErrors[formErrorField].each((error) => {
+                messages.push(formErrorField + ": " + error)    
+              })
             });
-            
-            this.props.history.push('/', { severity: 'success', message: 'Appointment updated succesfully'});
-          })
-          .fail( response => { 
-            
-            const messages = [];
-            
-            const formErrors = response.responseJSON;
-            
-            Object.keys(formErrors)
-                  .each((formErrorField) => {
-                    formErrors[formErrorField].each((error) => {
-                      messages.push(formErrorField + ": " + error)    
-                    })
-                  });
-            
-            this.displayMessages(messages, 'error');
-          });
+      
+      this.displayMessages(messages, 'error');
+    });
   }
 
   addNewAppointment = () => {
@@ -149,32 +151,37 @@ export default class AppointmentForm extends React.Component {
       appt_time: this.state.appt_time.value
     };
 
-    jQuery.post(`${this.base_url}`, { appointment: appointment })
-          .done( (data) => {
-            this.props.onAddNewAppointment(data);
+    $.ajaxSetup({
+      headers: JSON.parse(sessionStorage.getItem('user'))
+    });
 
-            this.setState({ 
-              title: { value: '', valid: false },
-              appt_time: { value: '', valid: false },
-              formValid: false 
+    $.post(`${this.base_url}`, { appointment: appointment })
+    .done( (data) => {
+      this.props.onAddNewAppointment(data);
+
+      this.setState({ 
+        title: { value: '', valid: false },
+        appt_time: { value: '', valid: false },
+        formValid: false 
+      });
+
+      this.displayMessages(['Appointment added succesfully'], 'success');
+    })
+    .fail( (response) => { 
+      
+      const messages = [];
+
+      const formErrors = response.responseJSON;
+      console.log("formErrors: " + formErrors);
+      Object.keys(formErrors)
+            .each((formErrorField) => {
+              formErrors[formErrorField].each((error) => {
+                messages.push(formErrorField + ": " + error)    
+              })
             });
 
-            this.displayMessages(['Appointment added succesfully'], 'success');
-          })
-          .fail( (response) => { 
-            
-            const messages = [];
-
-            const formErrors = response.responseJSON;
-            Object.keys(formErrors)
-                  .each((formErrorField) => {
-                    formErrors[formErrorField].each((error) => {
-                      messages.push(formErrorField + ": " + error)    
-                    })
-                  });
-
-            this.displayMessages(messages, 'error');
-          });
+      this.displayMessages(messages, 'error');
+    });
   }
 
   displayMessages = (messages, severity) => {

@@ -42,9 +42,10 @@ export default class Appointments extends React.Component{
     $.ajax({
       type: 'GET',
       url: `${this.base_address}/appointments`,
-      dataType: 'JSON'
+      dataType: 'JSON',
+      headers: JSON.parse(sessionStorage.getItem('user'))
     })
-    .done(data => {    
+    .done((data) => {    
       this.setState({ appointments: data });
     });
   }
@@ -64,11 +65,12 @@ export default class Appointments extends React.Component{
             detail: 'Appointment deleted succesfully',
             closeable: false,
             sticky: true});
-            
+
     $.ajax({
       type: 'GET',
       url: `${this.base_address}/appointments`,
-      dataType: 'JSON'
+      dataType: 'JSON',
+      headers: JSON.parse(sessionStorage.getItem('user'))
     })
     .done(data => {    
       this.setState({ appointments: data });

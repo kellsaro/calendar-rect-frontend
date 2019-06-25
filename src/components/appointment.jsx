@@ -29,7 +29,8 @@ export default class Appointment extends React.Component {
       $.ajax({
         type: 'GET',
         url: `${this.base_url}/${this.props.match.params.id}`,
-        dataType: 'JSON' 
+        dataType: 'JSON',
+        headers: JSON.parse(sessionStorage.getItem('user'))
       })
       .done( data => {
         this.setState({appointment: data});
@@ -42,7 +43,8 @@ export default class Appointment extends React.Component {
       $.ajax({
         type: 'DELETE',
         url: `${this.base_url}/${this.state.appointment.id}`,
-        dataType: 'JSON'
+        dataType: 'JSON',
+        headers: JSON.parse(sessionStorage.getItem('user'))
       })
       .done( data => {
         this.props.onDelete();

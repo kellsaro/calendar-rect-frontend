@@ -1,5 +1,24 @@
+# Calreact-frontend
+
+A simple application for scheduling appointments.
+
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
+* Requirements
+  
+  * You must have yarn 1.16.0 and npm 6.9.0
+
+* Instructions 
+  
+  * Clone or download this repo
+
+  * Go to the downloaded folder
+
+  * Run `yarn install` for installing all dependencies
+
+  * Run `yarn start` for start the server. All request all done to `http://localhost:3000` where the backend api is expected
+
+<!--
 ## Available Scripts
 
 In the project directory, you can run:
@@ -66,3 +85,4 @@ This section has moved here: https://facebook.github.io/create-react-app/docs/de
 ### `npm run build` fails to minify
 
 This section has moved here: https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify
+-->
